@@ -1,0 +1,16 @@
+select continent,
+sum(p.price)as revenue,
+sum(case when p.category = 'Bookcases & shelving units' then p.price end) as revenue_from_bookcases,
+sum(case when p.category = 'Bookcases & shelving units' then p.price end)/sum(p.price)*100 as revenue_from_bookcases_percent
+from `DA.order` o  
+join `DA.product`p
+on o.item_id=p.item_id
+join `DA.session_params` sp
+on o.ga_session_id=sp.ga_session_id
+group by continent
+
+Для кожного континенту:
+підрахував загальний дохід (revenue);
+визначив дохід від категорії Bookcases & shelving units (revenue_from_bookcases);
+обчислив відсоток доходу від категорії Bookcases & shelving units від загального доходу по континенту (revenue_from_bookcases_percent).
+Представив результати у форматі таблиці зі стовпцями continent, revenue, revenue_from_bookcases та revenue_from_bookcases_percent.
