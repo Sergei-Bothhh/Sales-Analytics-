@@ -1,0 +1,46 @@
+with continent_revenue as(
+select continent,
+sum(p.price) as revenue,
+sum(case when device='mobile' then p.price end ) as Revenue_from_mobile ,
+sum(case when device='desktop' then p.price end) as Revenue_from_desktop,
+from `DA.session_params` sp
+join `DA.order` o
+on sp.ga_session_id=o.ga_session_id
+join `DA.product` p
+on o.item_id=p.item_id
+group by continent),
+account as(
+  select
+  count(acc.id) as Account_count,
+  count(case when acc.is_verified=1 then acc.is_verified end) as Verified_account,
+
+
+ continent
+
+
+from `DA.account` acc
+join `DA.account_session` acs
+on acc.id=acs.account_id
+join `DA.session_params` spp
+on acs.ga_session_id=spp.ga_session_id
+group by spp.continent),
+account_sp as (
+  select count(ga_session_id) as session_count,continent
+  from `DA.session_params`
+  group by continent
+)
+select acn.continent,
+cnt.revenue,
+cnt.revenue_from_mobile,
+cnt.revenue_from_desktop,
+cnt.revenue/sum(cnt.revenue) over()*100 as percent_from_total,
+acn.Account_count,
+acn.verified_account,
+accs.session_count,
+
+
+from account as acn
+join continent_revenue as cnt
+on acn.continent=cnt.continent
+join account_sp as accs
+on acn.continent=accs.continent
